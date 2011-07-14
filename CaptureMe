@@ -1,0 +1,38 @@
+#!/bin/bash
+#______________________________________________________________________________________________________
+#Name   : CaptureMe
+#Licence: GPL3 (http://www.gnu.org/licenses/gpl.html), FFmepeg and Zenity have their receptive licence, please see their man page
+#Author : Salih Emin
+#Email  : salihemin (at) osarenat.net 
+#Date   : 5-5-2011
+#Version: 1.0
+#System : Linux with Zenity and FFmpeg packages preinstalled
+#WebSite: http://www.cerebrux.net - http://www.osarena.net/author/salih-emin
+#Source Code: Everything below comments is the sourcecode :)
+#Description:
+#This simple script will use FFmpeg to make a video from your screen or a selected window
+#______________________________________________________________________________________________________
+
+#Main CaptureMe app:
+WindowTitle=$"Αποθήκευση του βίντεο στο..."
+cd $HOME
+VideoSavePath=$(zenity --title "$WindowTitle" --file-selection --save --confirm-overwrite)
+        echo "Σύλληψη βίντεο από; (Κάντε κλικ στο παράθυρο ή στην επιφάνεια εργασίας)"
+        echo "_______________________________________________________________________"
+        echo "Το βίντεό σας επιλέξατε να αποθηκευτεί στο :"
+        echo "$VideoSavePath"
+        echo "_______________________________________________________________________"
+        echo "Για να σταματήσετε την λήψη βίντεο, επιλέξτε το τερματικό στο οποίο τρέχει"
+        echo "το CaptureMe και πατήστε το πλήκτρο - Q -"
+        echo "_______________________________________________________________________"
+        
+INFO=$(xwininfo -frame)
+
+WIN_GEOMETRY=$(echo "$INFO"|grep -e "Height:" -e "Width:"|cut -d\: -f2|tr "\n" " "|awk '{print $1 "x" $2}')
+WIN_POSITION=$(echo "$INFO"|grep "upper-left"|head -n 2|cut -d\: -f2|tr "\n" " "|awk '{print $1 "," $2}')
+
+#Kenrel of CaptureMe
+ffmpeg -f alsa -ac 2 -i hw:0,0 -f x11grab -s $WIN_GEOMETRY -r 30 -i :0.0+$WIN_POSITION -r 30 -vcodec libx264 -vpre lossless_ultrafast -sameq -threads 4 "$VideoSavePath.avi"
+
+echo "$WIN_GEOMETRY -i :0.0+$WIN_POSITION -acodec"
+echo "$WIN_GEOMETRY"
