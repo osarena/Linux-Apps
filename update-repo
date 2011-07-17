@@ -1,0 +1,5 @@
+#!/bin/bash -xv
+
+git pull --rebase
+echo"Repo has been update"
+sleep 3
