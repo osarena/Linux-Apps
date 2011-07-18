@@ -1,5 +1,5 @@
 #!/bin/bash -xv
 #This app is for keeping up-to-date local repository
-git pull --rebase
+git pull
 echo "Repo has been update"
 sleep 3
