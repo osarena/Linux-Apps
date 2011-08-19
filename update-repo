@@ -1,5 +1,35 @@
 #!/bin/bash -xv
-#This app is for keeping up-to-date local repository
+#______________________________________________________________________________
+#Author: Salih Emin <cerebrux.gr [at] gmail.com>
+#Website: http://osarena.net
+#Licence: GPL3 (http://www.gnu.org/licenses/gpl.html)
+#Version: 2.0 (first rlease 19-07-11)
+#Περιγραφή:
+#Αυτό το εργαλείο χρησιμεύει για να ελέγχει αν το αποθετηρίο του OSarena 
+#διαθέτει νέες εκδόσεις λογισμικού και να τις εγκαθηστά.
+#______________________________________________________________________________
+
+
+zenity --info --title "OSarena Repo" --width 300 --text="Συγουρευτείται οτι είστε συνδεδεμένοι στο διαδίκτυο και πατήστε <b>OK</b>"
+(
+sleep 1
 git pull
-echo "Repo has been update"
-sleep 3
+sleep 2
+) | zenity --width 100 \
+           --height 150 \
+           --progress \
+           --pulsate \
+           --title "OSarena Repo" \
+           --text="Ενημέρωση του αποθετηρίου. Παρακλώ περιμένετε..." \
+           --auto-close 
+if [ "$?" = 1 ]
+  then 
+	zenity --error \
+               --text="H ενημέρωση του αποθετηρίου ακυρώθηκε."
+	else 
+	zenity --info \
+       --title "OSarena Repo" \
+       --width 300 \
+       --text="H ενημέρωση του αποθετηρίου ολοκληρώθηκε !"
+fi
+#Τελευταίο μήνυμα ολοκλήρωσης διεργασιών
