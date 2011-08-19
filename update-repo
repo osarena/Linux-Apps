@@ -13,8 +13,11 @@
 zenity --info --title "OSarena Repo" --width 300 --text="Συγουρευτείται οτι είστε συνδεδεμένοι στο διαδίκτυο και πατήστε <b>OK</b>"
 (
 sleep 1
+git stash
+git stash clear
 git pull
-sleep 2
+chmod 755 update-repo
+sleep 1
 ) | zenity --width 100 \
            --height 150 \
            --progress \
