@@ -32,7 +32,10 @@ WIN_GEOMETRY=$(echo "$INFO"|grep -e "Height:" -e "Width:"|cut -d\: -f2|tr "\n" "
 WIN_POSITION=$(echo "$INFO"|grep "upper-left"|head -n 2|cut -d\: -f2|tr "\n" " "|awk '{print $1 "," $2}')
 
 #Kenrel of CaptureMe
-ffmpeg -f alsa -ac 2 -i hw:0,0 -f x11grab -s $WIN_GEOMETRY -r 30 -i :0.0+$WIN_POSITION -r 30 -vcodec libx264 -vpre lossless_ultrafast -sameq -threads 4 "$VideoSavePath.avi"
+ffmpeg -f alsa -ac 2 -i hw:0,0 -f x11grab -s $WIN_GEOMETRY -r 15 -i :0.0+$WIN_POSITION -r 15 -acodec pcm_s16le -sameq "$VideoSavePath.avi"
+
+#The following code creates commpressed audio lower quality from the above and smaller sized video
+#ffmpeg -f alsa -ac 2 -i hw:0,0 -f x11grab -s $WIN_GEOMETRY -r 15 -i :0.0+$WIN_POSITION -r 15 -vcodec libx264 -vpre lossless_ultrafast -sameq -threads 4 "$VideoSavePath.avi"
 
 echo "$WIN_GEOMETRY -i :0.0+$WIN_POSITION -acodec"
 echo "$WIN_GEOMETRY"
