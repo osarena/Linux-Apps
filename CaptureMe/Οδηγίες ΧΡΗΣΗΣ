@@ -1,0 +1,14 @@
+Όνομα   : CaptureMe
+Άδεια: GPL3 (http://www.gnu.org/licenses/gpl.html), FFmepeg and Zenity have their receptive licence, please see their man page
+Συντάκτης : Salih Emin
+Email  : salihemin (at) osarenat.net 
+Ημερομηνία   : 26-7-2011 (πρώτη έκδοση: 14-7-2011)
+Έκδοση: 1.1
+Σύστημα : Linux προεγκατεστιμένα τα προγράμματα Zenity και FFmpeg
+WebSite: http://www.osarena.net/author/salih-emin
+
+						Description:
+Αυτό το πρόγραμμα χρησιμοποιεί το FFmpeg για να δημιουργήσει ένα βίντεο απο την επιφάνεια
+εργασίας σας ή το παράθυρο του προγράμματος που θα κάνετε κλικ.
+Αφού έχετε προεγκαταστίσει τα προγράμματα Zenity και FFmpeg στο συστημά σας απλά κάντε 
+διπλό κλίκ στο "CaptureMe" και επιλέξτε "Εκτέλεση σε Τερματικό"

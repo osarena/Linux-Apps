@@ -13,6 +13,7 @@
 #This simple script will use FFmpeg to make a video from your screen or a selected window
 #______________________________________________________________________________________________________
 
+
 #Main CaptureMe app:
 WindowTitle=$"Αποθήκευση του βίντεο στο..."
 cd $HOME
