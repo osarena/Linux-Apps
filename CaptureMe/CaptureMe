@@ -16,8 +16,10 @@
 
 #Main CaptureMe app:
 WindowTitle=$"Αποθήκευση του βίντεο στο..."
-cd $HOME
-VideoSavePath=$(zenity --title "$WindowTitle" --file-selection --save --confirm-overwrite)
+if [ -f /usr/bin/ffmpeg ]
+then
+   cd $HOME
+   VideoSavePath=$(zenity --title "$WindowTitle" --file-selection --save --confirm-overwrite)
         echo "Σύλληψη βίντεο από; (Κάντε κλικ στο παράθυρο ή στην επιφάνεια εργασίας)"
         echo "_______________________________________________________________________"
         echo "Το βίντεό σας επιλέξατε να αποθηκευτεί στο :"
@@ -40,3 +42,6 @@ ffmpeg -f alsa -ac 2 -i hw:0,0 -f x11grab -s $WIN_GEOMETRY -r 15 -i :0.0+$WIN_PO
 
 echo "$WIN_GEOMETRY -i :0.0+$WIN_POSITION -acodec"
 echo "$WIN_GEOMETRY"
+else 
+	zenity --error --text "Το <b>FFmpeg</b> δεν βρέθηκε στο σύστημά σας ! \nΠαρακαλούμε εγκαταστήστε το απο το Κέντρο Λογισμικού της διανομής σας και δοκιμάστε ξανά."
+fi
