@@ -1,0 +1,127 @@
+#!/usr/bin/env python
+# -*- coding: utf8 -*-
+
+from subprocess import call
+import pygtk
+pygtk.require('2.0')
+import gtk
+
+class YTDownloader:
+    url=""
+    quality="18"
+   
+	
+    def setQuality(self, widget, data=None):
+	 
+   	if data=="720p":
+	 self.quality="22"
+	elif data=="1080p":
+	 self.quality="37"
+	else:
+	 self.quality="18"
+		 
+    def download(self, widget, data=None):
+	print self.url
+	print self.quality
+        call(["modules/youtube-dl","-t","--max-quality",self.quality,self.url])
+   
+    def update(self, widget, data=None):
+	
+        call(["modules/youtube-dl","-U"])
+    
+    def delete_event(self, widget, event, data=None):
+        
+        print "delete event occurred"
+
+        
+        return False
+
+    def destroy(self, widget, data=None):
+        print "destroy signal occurred"
+        gtk.main_quit()
+    
+    def enter_callback(self, widget, entry):
+   	  
+	self.url = entry.get_text()
+	entry.set_text(entry.get_text())
+	print self.url
+    
+    def __init__(self):
+        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+    	window.set_size_request(600, 300)
+ 	window.set_title("uTubeDownloader v0.01")
+	vbox= gtk.VBox(False,10)
+	window.add(vbox)
+	vbox.show()
+ 	
+
+
+	
+	
+	entry = gtk.Entry()
+        entry.set_max_length(0)
+        entry.connect("changed", self.enter_callback, entry)
+        entry.set_editable(True)
+	entry.set_visibility(True)
+        
+        entry.select_region(0, len(entry.get_text()))
+        vbox.pack_start(entry, True, True, 0)
+        entry.show()
+        
+    
+        
+        window.set_border_width(10)
+    	
+        
+        dlbutton = gtk.Button("Λήψη Βίντεο")
+	updateButton = gtk.Button("Αναβάθμηση του youtube-dl")
+ 	
+    
+        
+        dlbutton.connect("clicked", self.download, None)
+	updateButton.connect("clicked", self.update, None)
+    	
+        
+       
+    	separator = gtk.HSeparator()
+        vbox.pack_start(separator, False, True, 0)
+        separator.show()
+        
+	vbox.add(dlbutton)
+	vbox.add(updateButton)
+	
+	separator = gtk.HSeparator()
+        vbox.pack_start(separator, False, True, 0)
+        separator.show()
+	
+	Rbutton1 = gtk.RadioButton(None, "480p")
+   	Rbutton1.connect("toggled", self.setQuality, "480p")
+        vbox.pack_start(Rbutton1, True, True, 0)
+        Rbutton1.show()
+	Rbutton2 = gtk.RadioButton(Rbutton1, "720p")
+   	Rbutton2.connect("toggled", self.setQuality, "720p")
+        vbox.pack_start(Rbutton2, True, True, 0)
+        Rbutton2.show()
+	Rbutton3 = gtk.RadioButton(Rbutton1, "1080p")
+   	Rbutton3.connect("toggled", self.setQuality, "1080p")
+        vbox.pack_start(Rbutton3, True, True, 0)
+        Rbutton3.show()
+        
+    
+        
+        dlbutton.show()
+	updateButton.show()
+    	window.show()
+        
+        
+        
+	
+    def main(self):
+        
+        gtk.main()
+	
+	
+if __name__ == "__main__":
+    downloader = YTDownloader()
+    downloader.main()
+
