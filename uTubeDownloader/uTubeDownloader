@@ -1,127 +1,205 @@
 #!/usr/bin/env python
 # -*- coding: utf8 -*-
 
-from subprocess import call
+#______________________________________________________________________________________________________
+#Name   : uTubeDownloader
+#Licence: GPL3 (http://www.gnu.org/licenses/gpl.html), Youtube-dl have their recspective licence, please see their man page
+#Author : John Skoteiniotis
+#Email  : j0hnskot (at) gmail.com 
+#Date   : 13-09-2011 (first release 9-9-2011)
+#Version: 0.02
+#Source Code: Everything below those comments is the sourcecode 
+#Description:
+#This simple script is a gui that will make the use of youtube-dl more user-friendly. 
+#______________________________________________________________________________________________________
+
+import os
+import sys
+import time
+import subprocess
+from threading import Thread
 import pygtk
+import glib
+import gtk, gobject
 pygtk.require('2.0')
 import gtk
-
+playlist=False
+quality="18"
+url=""
+z=""
+downloading=False
+progressLabel = gtk.Label("Loading..")
+window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+entry = gtk.Entry()
 class YTDownloader:
-    url=""
-    quality="18"
-   
-	
-    def setQuality(self, widget, data=None):
-	 
-   	if data=="720p":
-	 self.quality="22"
-	elif data=="1080p":
-	 self.quality="37"
-	else:
-	 self.quality="18"
-		 
-    def download(self, widget, data=None):
-	print self.url
-	print self.quality
-        call(["modules/youtube-dl","-t","--max-quality",self.quality,self.url])
-   
-    def update(self, widget, data=None):
-	
-        call(["modules/youtube-dl","-U"])
-    
-    def delete_event(self, widget, event, data=None):
-        
-        print "delete event occurred"
 
+
+    def isPlaylist(self, widget, data=None):
+
+        global playlist
+
+        if playlist==False:
+            playlist=True
+        else:
+            playlist=False
+        #print playlist
+
+    def checkPlaylist(self):
+        global url
+        if -1!=url.find("list="):
+            url=url[(url.find("list="))+5:(url.find("list="))+5+18]
+        elif -1!=url.find("p="):
+            url= url[(url.find("p="))+2:(url.find("p="))+2+18]
+        else:
+            print "its not a playlist"
+
+    def setQuality(self, widget, data=None):
+        global quality
+        if data=="720p":
+            quality="22"
+        elif data=="1080p":
+            quality="37"
+        else:
+            quality="18"
+
+    def downloadStart(self,widget,data=None):
+        global downloading
+        if downloading!=True:
+                downloadThread=Thread(target = self.download)
+                downloadThread.start()
+                downloadThread.join(1)
+        else: 
+                print "not ready"
+    def download(self):
         
-        return False
+        global url
+        global quality
+        global playlist
+        global downloading
+        if playlist==True:
+            downloading=True
+            self.checkPlaylist()
+            self.p=subprocess.Popen(["modules/youtube-dl -t --max-quality "+quality+" www.youtube.com/view_play_list?p="+url],shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+   
+        else:
+            global z
+            downloading=True
+            self.p=subprocess.Popen(["modules/youtube-dl -t --max-quality "+quality+" "+url],shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            
+        self.makeProgressWindow()
+        for line in iter(self.p.stdout.readline,""):
+           global progressLabel
+           global z
+           z=line
+           time.sleep(1)
+           print z
+           gobject.idle_add(self.updateProgressWindow)
+
+
+    def updateProgressWindow(self):
+        global progressLabel
+        global z
+        global downloading
+        if downloading==True:
+            if z.strip()!='1':
+                progressLabel.set_text(z)
+            elif z.strip()=='1' and playlist!=True:
+                progressLabel.set_text("Η λήψη ολοκληρώθηκε. Μπορείτε να κλείσετε αυτό το παράθυρο.")
+                downloading=False;
+    def makeProgressWindow(self):
+        global window
+        global z
+        dialog = gtk.Dialog(title="Πρόοδος Λήψης:", parent=window, flags=0, buttons=None)
+        global progressLabel
+        dialog.vbox.pack_start(progressLabel, True, True, 0)
+        progressLabel.set_text("")
+        progressLabel.show()
+        dialog.show_all()
+
+    def update(self, widget, data=None):
+
+        subprocess.Popen(["modules/youtube-dl","-U"])
+
 
     def destroy(self, widget, data=None):
         print "destroy signal occurred"
         gtk.main_quit()
-    
+
     def enter_callback(self, widget, entry):
-   	  
-	self.url = entry.get_text()
-	entry.set_text(entry.get_text())
-	print self.url
-    
+        global url
+        url = entry.get_text()
+        print entry.get_text()
+        entry.set_text(entry.get_text())
+        print url
+
     def __init__(self):
-        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-    	window.set_size_request(600, 300)
- 	window.set_title("uTubeDownloader v0.01")
-	vbox= gtk.VBox(False,10)
-	window.add(vbox)
-	vbox.show()
- 	
-
-
-	
-	
-	entry = gtk.Entry()
+        global window
+        
+        window.set_size_request(600, 300)
+        window.set_title("uTubeDownloader v0.02")
+        window.set_border_width(10)
+        vbox= gtk.VBox(False,10)
+        window.add(vbox)
+        vbox.show()
+                
+        #url box#
+        global entry
         entry.set_max_length(0)
         entry.connect("changed", self.enter_callback, entry)
         entry.set_editable(True)
-	entry.set_visibility(True)
-        
+        entry.set_visibility(True)
         entry.select_region(0, len(entry.get_text()))
         vbox.pack_start(entry, True, True, 0)
         entry.show()
-        
-    
-        
-        window.set_border_width(10)
-    	
-        
+
+        playListButton = gtk.CheckButton("Playlist")
+        playListButton.connect("toggled", self.isPlaylist, None)
+        vbox.pack_start(playListButton, True, True, 2)
+        playListButton.show()
+
+
+
         dlbutton = gtk.Button("Λήψη Βίντεο")
-	updateButton = gtk.Button("Αναβάθμηση του youtube-dl")
- 	
-    
-        
-        dlbutton.connect("clicked", self.download, None)
-	updateButton.connect("clicked", self.update, None)
-    	
-        
-       
-    	separator = gtk.HSeparator()
+        updateButton = gtk.Button("Αναβάθμηση του youtube-dl")
+        dlbutton.connect("clicked", self.downloadStart, None)
+        updateButton.connect("clicked", self.update, None)
+
+        separator = gtk.HSeparator()
         vbox.pack_start(separator, False, True, 0)
         separator.show()
-        
-	vbox.add(dlbutton)
-	vbox.add(updateButton)
-	
-	separator = gtk.HSeparator()
+
+        vbox.add(dlbutton)
+        vbox.add(updateButton)
+
+        separator = gtk.HSeparator()
         vbox.pack_start(separator, False, True, 0)
         separator.show()
-	
-	Rbutton1 = gtk.RadioButton(None, "480p")
-   	Rbutton1.connect("toggled", self.setQuality, "480p")
+        #Quality buttons#
+        Rbutton1 = gtk.RadioButton(None, "480p")
+        Rbutton1.connect("toggled", self.setQuality, "480p")
         vbox.pack_start(Rbutton1, True, True, 0)
         Rbutton1.show()
-	Rbutton2 = gtk.RadioButton(Rbutton1, "720p")
-   	Rbutton2.connect("toggled", self.setQuality, "720p")
+        Rbutton2 = gtk.RadioButton(Rbutton1, "720p")
+        Rbutton2.connect("toggled", self.setQuality, "720p")
         vbox.pack_start(Rbutton2, True, True, 0)
         Rbutton2.show()
-	Rbutton3 = gtk.RadioButton(Rbutton1, "1080p")
-   	Rbutton3.connect("toggled", self.setQuality, "1080p")
+        Rbutton3 = gtk.RadioButton(Rbutton1, "1080p")
+        Rbutton3.connect("toggled", self.setQuality, "1080p")
         vbox.pack_start(Rbutton3, True, True, 0)
         Rbutton3.show()
-        
-    
-        
+
         dlbutton.show()
-	updateButton.show()
-    	window.show()
-        
-        
-        
-	
+        #updateButton.show()
+        window.show()
+        gtk.gdk.threads_init()
     def main(self):
-        
+
         gtk.main()
-	
-	
+       
+
 if __name__ == "__main__":
     downloader = YTDownloader()
+    gtk.gdk.threads_enter()
     downloader.main()
+    gtk.gdk.threads_leave()
 

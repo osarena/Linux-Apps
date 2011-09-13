@@ -1,0 +1,70 @@
+#!/bin/bash -x
+#______________________________________________________________________________________________________
+#Name   : CaptureMe
+#Licence: GPL3 (http://www.gnu.org/licenses/gpl.html), FFmepeg and Zenity have their recspective licence, please see their man page
+#Author : Salih Emin
+#Email  : salihemin (at) osarenat.net 
+#Date   : 09-09-2011 (first release 14-7-2011)
+#Version: 2.0
+#System : Linux with Zenity and FFmpeg packages preinstalled
+#WebSite: http://www.cerebrux.net - http://www.osarena.net/author/salih-emin
+#Source Code: Everything below comments is the sourcecode :)
+#Description:
+#This simple script will use FFmpeg to make a video from your screen or a selected window with or without sound
+#______________________________________________________________________________________________________
+   DIR=~/
+   FORMAT=avi
+   DATE=`date +%F_%T`
+   VideoSaveFile=$DIR/CaptureMe_${DATE}.${FORMAT}
+   test -f $VideoSaveFile && rm $VideoSaveFile
+   #TMP=`mktemp`
+
+#Main CaptureMe app:
+CMWindowTitle=$"CaptureMe"
+CMVersion=$"| v2.0"
+
+if [ -f /usr/bin/ffmpeg ]; then
+sound_or_not=$(zenity  --list  \
+                                    --width="400" \
+                                    --height="200" \
+                                    --title="$CMWindowTitle $CMVersion" \
+                                    --text "Διαλέξτε αν η βιντεοσκόπηση θα περιλαμβάνει ήχο ή όχι\n" \
+                                    --radiolist  --column "Επιλογή" --column "Βιντεοσκόπηση" \
+                                    TRUE "Με ήχο" \
+                                    FALSE "Χωρίς ήχο" \
+                                   --separator=":")
+	#Σε περίπτωση που ο χρήστης πατήσει "Ακύρωση":
+	if [ $? -eq 1 ] ; 
+   	then
+        zenity --info \
+                    --title="$CMWindowTitle $CMVersion" \
+                    --text="Η Βιντεοσκόπηση <b>Ακυρώθηκε</b>"
+        exit 1
+        fi
+
+   INFO=$(xwininfo -frame)
+
+   WIN_GEOMETRY=$(echo "$INFO"|grep -e "Height:" -e "Width:"|cut -d\: -f2|tr "\n" " "|awk '{print $1 "x" $2}')
+   WIN_POSITION=$(echo "$INFO"|grep "upper-left"|head -n 2|cut -d\: -f2|tr "\n" " "|awk '{print $1 "," $2}')
+   
+   #Kenrel of CaptureMe
+([[ $sound_or_not = *Με* ]] && ffmpeg -f alsa -ac 2 -i hw:0,0 -f x11grab -s $WIN_GEOMETRY -r 15 -i :0.0+$WIN_POSITION -r 15 -acodec pcm_s16le -sameq $VideoSaveFile 
+[[ $sound_or_not = *Χωρίς* ]] && ffmpeg -f x11grab -s $WIN_GEOMETRY -r 15 -i :0.0+$WIN_POSITION -sameq $VideoSaveFile) & zenity --warning --width="300" --height="30" --title="$CMWindowTitle $CMVersion" --text="Η Βιντεοσκόπηση ξεκίνησε.... \n\nΓια τερματισμό βιντεοσκόπησης \nπατήστε <b>ΟΚ</b>"
+
+echo "$WIN_GEOMETRY -i :0.0+$WIN_POSITION -acodec"
+echo "$WIN_GEOMETRY"
+
+kill -9 `ps ux | awk '/ffmpeg/ && !/awk/ {print $2}'`
+# or pkill ffmpeg
+zenity --info \
+             --title="$CMWindowTitle $CMVersion" \
+             --height="30" \
+             --text="Η βιντεοσκόπησή σας έχει αποθηκευτεί \nστον αρχικό κατάλογο σας<b> $DIR</b>"
+else
+	zenity --title="$CMWindowTitle $CMVersion" \
+	             --error \
+	             --text "Το <b>FFmpeg</b> δεν βρέθηκε στο σύστημά σας ! \nΠαρακαλούμε εγκαταστήστε το απο το Κέντρο Λογισμικού της διανομής σας και δοκιμάστε ξανά."
+fi
+
+#The following code creates commpressed audio at a lower quality from the above and smaller sized video
+#ffmpeg -f alsa -ac 2 -i hw:0,0 -f x11grab -s $WIN_GEOMETRY -r 15 -i :0.0+$WIN_POSITION -r 15 -vcodec libx264 -vpre lossless_ultrafast -sameq -threads 4 "$VideoSavePath.avi"
