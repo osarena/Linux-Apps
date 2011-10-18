@@ -49,9 +49,9 @@ sound_or_not=$(zenity  --list  \
    echo "$WIN_GEOMETRY -i :0.0+$WIN_POSITION -acodec"
    echo "$WIN_GEOMETRY"
 
-   #Kenrel of CaptureMe
+   #Kernel of CaptureMe
 ([[ $sound_or_not = *Με* ]] && ffmpeg -f alsa -ac 2 -i hw:0,0 -f x11grab -s $WIN_GEOMETRY -r 25 -i :0.0+$WIN_POSITION -acodec pcm_s16le -y -sameq $VideoSaveFile 
-[[ $sound_or_not = *Χωρίς* ]] && ffmpeg -f x11grab -s $WIN_GEOMETRY -r 24 -i :0.0+$WIN_POSITION -sameq -y $VideoSaveFile) & zenity --warning --width="300" --height="30" --title="$CMWindowTitle $CMVersion" --text="Η Βιντεοσκόπηση ξεκίνησε.... \n\nΓια τερματισμό βιντεοσκόπησης \nπατήστε <b>ΟΚ</b>"
+[[ $sound_or_not = *Χωρίς* ]] && ffmpeg -f x11grab -s $WIN_GEOMETRY -r 24 -i :0.0+$WIN_POSITION -sameq -y $VideoSaveFile) & zenity --warning --width="300" --height="30" --title="$CMWindowTitle $CMVersion" --text="Η Βιντεοσκόπηση ξεκίνησε.... \n\nΓια τερματισμό βιντεοσκόπησης \nπατήστε <b>Εντάξει</b>"
 
 #kill -9 `ps ux | awk '/ffmpeg/ && !/awk/ {print $2}'`
 pkill ffmpeg
