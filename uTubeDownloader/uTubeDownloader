@@ -23,6 +23,8 @@ import glib
 import gtk, gobject
 pygtk.require('2.0')
 import gtk
+
+#Variables
 playlist=False
 quality="18"
 url=""
@@ -35,15 +37,45 @@ downloading=False
 progressLabel = gtk.Label("Loading..")
 window = gtk.Window(gtk.WINDOW_TOPLEVEL)
 entry = gtk.Entry()
-class YTDownloader:
+isChannel=False
+channelName=""
+ifl=""
+##
+
+
+
+class uTubeDownloader:
+
+    def iflOn(self ,widget , data=None):
+        ##I Feel Lucky feature
+        global ifl
+        if ifl=="":
+            ifl="ytsearch:"
+        else:
+            ifl=""
+
+    def isChannelOn(self ,widget , data=None):
+        global isChannel
+        global channelName
+        if isChannel==True:
+            isChannel=False
+            channelName=""
+            print "if  " +channelName
+        else:
+            isChannel=True
+            channelName="ytuser:"
+            print "else   " +channelName
+
 
     def onlySoundOn(self ,widget , data=None):
         global onlySound
-        
+
         if onlySound=="":
             onlySound="--extract-audio --audio-format \"vorbis\""
+
         else:
-            onlySound==""
+            onlySound=""
+
 
     def speedLimitEnabled(self ,widget , data=None):
         global speedLimitEnabled
@@ -98,7 +130,9 @@ class YTDownloader:
         global downloading
         global speedLimitEnabled
         global speedLimit
-
+        global channelName
+        global onlySound
+        print "Channel " + channelName
 
         if playlist==True:
             downloading=True
@@ -117,10 +151,9 @@ class YTDownloader:
             global z
             downloading=True
             if speedLimitEnabled==True:
-               
-                self.p=subprocess.Popen(["modules/youtube-dl "+onlySound+" -t --max-quality "+quality+" "+"--rate-limit="+speedLimit+" "+url],shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                self.p=subprocess.Popen(["modules/youtube-dl "+onlySound+" -t --max-quality "+quality+" "+"--rate-limit="+speedLimit+" \""+channelName+ifl+url+"\""],shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             else:
-                self.p=subprocess.Popen(["modules/youtube-dl "+onlySound+" -t --max-quality "+quality+" "+url],shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                self.p=subprocess.Popen(["modules/youtube-dl "+onlySound+" -t --max-quality "+quality+" \""+channelName+ifl+url+"\""],shell=True, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         self.makeProgressWindow()
         for line in iter(self.p.stdout.readline,""):
            global progressLabel
@@ -177,8 +210,8 @@ class YTDownloader:
     def __init__(self):
         global window
         
-        window.set_size_request(600, 300)
-        window.set_title("uTubeDownloader v0.03")
+        window.set_size_request(640, 480)
+        window.set_title("uTubeDownloader v0.04")
         window.set_border_width(10)
         vbox= gtk.VBox(False,10)
         window.add(vbox)
@@ -199,13 +232,22 @@ class YTDownloader:
         vbox.pack_start(playListButton, True, True, 2)
         playListButton.show()
 
-        mp3Button = gtk.CheckButton("Μόνο ήχος")
+        mp3Button = gtk.CheckButton("Only Sound")
         mp3Button.connect("toggled", self.onlySoundOn, None)
         vbox.pack_start(mp3Button, True, True, 2)
         mp3Button.show()
 
+        channelButton = gtk.CheckButton("Channel")
+        channelButton.connect("toggled", self.isChannelOn, None)
+        vbox.pack_start(channelButton, True, True, 2)
+        channelButton.show()
 
-        dlbutton = gtk.Button("Λήψη Βίντεο")
+        iflButton = gtk.CheckButton("I feel lucky!")
+        iflButton.connect("toggled", self.iflOn, None)
+        vbox.pack_start(iflButton, True, True, 2)
+        iflButton.show()
+
+        dlbutton = gtk.Button("Λήψη")
         updateButton = gtk.Button("Αναβάθμηση του youtube-dl")
         dlbutton.connect("clicked", self.downloadStart, None)
         updateButton.connect("clicked", self.update, None)
@@ -234,7 +276,7 @@ class YTDownloader:
         vbox.pack_start(Rbutton3, True, True, 0)
         Rbutton3.show()
         #SpeedLimit
-        speedLimitButton = gtk.CheckButton("Όριο ταχύτητας")
+        speedLimitButton = gtk.CheckButton("SpeedLimit")
         speedLimitButton.connect("toggled", self.speedLimitEnabled, None)
         vbox.pack_start(speedLimitButton, True, True, 2)
         speedLimitButton.show()
@@ -257,7 +299,7 @@ class YTDownloader:
        
 
 if __name__ == "__main__":
-    downloader = YTDownloader()
+    downloader = uTubeDownloader()
     gtk.gdk.threads_enter()
     downloader.main()
     gtk.gdk.threads_leave()
