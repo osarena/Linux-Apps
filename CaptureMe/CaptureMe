@@ -1,13 +1,13 @@
-#!/bin/bash -x
+#!/bin/bash -vx
 #______________________________________________________________________________________________________
 #Name   : CaptureMe
 #Licence: GPL3 (http://www.gnu.org/licenses/gpl.html), FFmepeg and Zenity have their recspective licence, please see their man page
 #Author : Salih Emin
-#Email  : salihemin (at) osarenat.net 
-#Date   : 14-09-2011 (first release 14-7-2011)
-#Version: 2.1
+#Email  : salihemin (at) about.me 
+#Date   : 26-03-2012 (first release 14-7-2011)
+#Version: 2.3
 #System : Linux with Zenity and FFmpeg packages preinstalled
-#WebSite: http://www.cerebrux.net - http://www.osarena.net/author/salih-emin
+#WebSite: http://screen-captureme.blogspot.com
 #Source Code: Everything below comments is the sourcecode :)
 #Description:
 #This simple script will use FFmpeg to make a video from your screen or a selected window with or without sound
@@ -21,7 +21,7 @@
 
 #Main CaptureMe app:
 CMWindowTitle=$"CaptureMe"
-CMVersion=$"| v2.1"
+CMVersion=$"| v2.3"
 
 if [ -f /usr/bin/ffmpeg ]; then
 sound_or_not=$(zenity  --list  \
