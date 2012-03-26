@@ -1,0 +1,26 @@
+Οδηγίες χρήσης Network Monitor
+------------------------------
+Προαπαιτούμενα (Θα τα βρείτε στον Διαχειρηστή Εφαρμογών της διανομής σας):
+		-- gcc
+		-- Nmap
+
+Για την χρήση του Network Monitor θα πρέπει πρώτα να γίνει μεταγλώτηση και έπειτα χρήση του εκτελέσιμου αρχείου:
+Πολύ απλά ανοίγουμε ένα τερματικό και πηγαίνουμε στον φάκελο όπου βρήσκεται το αρχείο makefile
+
+	panos@home:~/Desktop/Network Monitor/source$ ls
+	makefile  Network_monitor.c  Network_monitor.h
+
+Το μόνο που μένει να κάνουμε είναι να γράψουμε στο τερματικό την εντολή " make "
+	
+	panos@home:~/Desktop/Network Monitor/source$ make
+
+Αυτή η εντολή θα δημιοργήσει το εκτελέσιμο αρχείο "Network_monitor"
+	
+Τρέχουμε ως root η με sudo την εφαρμογή δίνοντας σαν όρισμα τον προσαρμογέα δικτύου που θέλουμε να scannaroume.
+Αν δεν ξέρετε πως ονομάζεται δώστε ifconfig και διαλέξτε τον πχ eth0,wlan0 etc..
+
+	panos@home:~/Desktop/Network Monitor/source$ sudo ./Network_monitor eth0
+
+-------------------------------
+
+
